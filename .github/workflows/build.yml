@@ -145,7 +145,7 @@ jobs:
           
           echo "CONFIG_KSU=y" >> arch/arm64/configs/gki_defconfig
           
-          if [[ "${{ inputs.ksu_type }}" == *susfs ]]; then
+          if [[ "${{ inputs.ksu_type }}" == *susfs* ]]; then
             git clone -b gki-android14-6.1 https://gitlab.com/simonpunk/susfs4ksu.git susfs
             cd susfs
             cp ./kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ..
@@ -165,13 +165,13 @@ jobs:
             echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> arch/arm64/configs/gki_defconfig
           fi
 
-          if [[ "${{ inputs.ksu_type }}" == *BBG ]]; then
+          if [[ "${{ inputs.ksu_type }}" == *BBG* ]]; then
             sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' security/Kconfig
           fi
           
           touch ./.scmversion
           
-          if [[ "${{ inputs.ksu_type }}" == *KPM ]]; then
+          if [[ "${{ inputs.ksu_type }}" == *KPM* ]]; then
             echo "CONFIG_KPM=y" >> arch/arm64/configs/gki_defconfig
           fi
           
