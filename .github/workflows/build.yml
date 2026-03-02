@@ -178,17 +178,14 @@ jobs:
           
           echo "CONFIG_TMPFS_XATTR=y" >> arch/arm64/configs/gki_defconfig
 
-          # 强制开启 ThinLTO 核心命令
-          echo "CONFIG_LTO=y" >> arch/arm64/configs/gki_defconfig
-          echo "CONFIG_LTO_CLANG=y" >> arch/arm64/configs/gki_defconfig
-          echo "CONFIG_LTO_CLANG_THIN=y" >> arch/arm64/configs/gki_defconfig
-          
-          # 确保关闭 Full LTO 以防冲突
-          sed -i 's/CONFIG_LTO_CLANG_FULL=y/# CONFIG_LTO_CLANG_FULL is not set/g' arch/arm64/configs/gki_defconfig
-
           rm android/abi_gki_protected_exports_*
           
           make O=out gki_defconfig vendor/pineapple_GKI.config vendor/oplus/pineapple_GKI.config
+
+          ./scripts/config --file out/.config --enable CONFIG_LTO
+          ./scripts/config --file out/.config --enable CONFIG_LTO_CLANG
+          ./scripts/config --file out/.config --enable CONFIG_LTO_CLANG_THIN
+          ./scripts/config --file out/.config --disable CONFIG_LTO_CLANG_FULL
           
           make -j2 O=out Image
 
