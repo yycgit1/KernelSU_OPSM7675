@@ -180,7 +180,7 @@ jobs:
 
           rm android/abi_gki_protected_exports_*
           
-          make O=out gki_defconfig vendor/pineapple_GKI.config vendor/oplus/pineapple_GKI.config vendor/debugfs.config
+          make O=out gki_defconfig vendor/pineapple_GKI.config vendor/oplus/pineapple_GKI.config
           
           make -j2 O=out Image
           
