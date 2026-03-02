@@ -193,11 +193,13 @@ jobs:
           cp ${SOC}/out/arch/arm64/boot/Image ./Image
           cd AnyKernel3
 
-          https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/latest/download/patch_linux
-          chmod +x patch_linux
-          ./patch_linux
-          rm -f Image
-          mv oImage Image
+          if [[ "${{ inputs.ksu_type }}" == *KPM* ]]; then
+            curl -L -o patch_linux https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/latest/download/patch_linux
+            chmod +x patch_linux
+            ./patch_linux
+            rm -f Image
+            mv oImage Image
+          fi
           
           zip -r9 ../"${ZIP_NAME}.zip" * -x .git
 
