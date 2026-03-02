@@ -4,36 +4,39 @@ on:
   workflow_dispatch:
     inputs:
       clang_version:
-        description: Type the clang version of ur kernel
+        description: 选择您内核对应的clang
         required: true
         type: choice
+        default: clang-r547379
         options:
           - clang-3289846
           - clang-r547379
           - clang-r563880
           - clang-r563880c
           - clang-r574158
+          - clang-r487747c
           - clang-stable
           
       kernel_source:
-        description: Kernel Source Code
+        description: 内核源码
         required: true
         type: choice
+        default: LineageOS
         options:
           - LineageOS
           - crdroidandroid
-          - OnePlus12R-development
           
       kernel_branch:
-        description: Kernel Branch(such as lineage-23.2 sixteen-qpr1)
+        description: "内核分支(就像: lineage-23.2 sixteen-qpr1)"
         required: true
         type: string
-        default: ""
+        default: "lineage-23.2"
         
       ksu_type:
         description: "KernelSU Version"
         required: true
         type: choice
+        default: ReSukiSU-with-susfs-BBG-KPM
         options:
           - None
           - Official-KernelSU
@@ -42,12 +45,13 @@ on:
           - KowSU
           - ReSukiSU
           - ReSukiSU-with-susfs
+          - ReSukiSU-with-susfs-BBG-KPM
           
 jobs:
   Kernel_CI:
     env:
         GH_TOKEN: ${{ github.token }}
-        SOC: sm8550
+        SOC: sm8650
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -76,7 +80,8 @@ jobs:
           curl \
           dwarves \
           cpio \
-          gcc-aarch64-linux-gnu
+          gcc-aarch64-linux-gnu \
+          gawk
           
       - name: Clone Kernel Source
         run: |
@@ -133,19 +138,19 @@ jobs:
               curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/refs/heads/dev-susfs/kernel/setup.sh" | bash -s dev-susfs
               ;;
 
-            "ReSukiSU"|"ReSukiSU-with-susfs")
+            "ReSukiSU"|"ReSukiSU-with-susfs"|"ReSukiSU-with-susfs-BBG-KPM")
               curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s main
               ;;
           esac
           
           if [[ "${{ inputs.ksu_type }}" == *susfs ]]; then
-            git clone -b gki-android13-5.15 https://gitlab.com/simonpunk/susfs4ksu.git susfs
+            git clone -b gki-android14-6.1 https://gitlab.com/simonpunk/susfs4ksu.git susfs
             cd susfs
-            cp ./kernel_patches/50_add_susfs_in_gki-android13-5.15.patch ..
+            cp ./kernel_patches/50_add_susfs_in_gki-android14-6.1.patch ..
             cp ./kernel_patches/fs/* ../fs/
             cp ./kernel_patches/include/linux/* ../include/linux/
             cd ..
-            patch -p1 < 50_add_susfs_in_gki-android13-5.15.patch
+            patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch
             echo "CONFIG_KSU_SUSFS=y" >> arch/arm64/configs/gki_defconfig
             echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> arch/arm64/configs/gki_defconfig
             echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> arch/arm64/configs/gki_defconfig
@@ -156,13 +161,30 @@ jobs:
             echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> arch/arm64/configs/gki_defconfig
             echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> arch/arm64/configs/gki_defconfig
           fi
+
+          if [[ "${{ inputs.ksu_type }}" == *BBG ]]; then
+            sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' security/Kconfig
+          fi
           
           touch ./.scmversion
           
+          if [[ "${{ inputs.ksu_type }}" == *KPM ]]; then
+            echo "CONFIG_KPM=y" >> arch/arm64/configs/gki_defconfig
+          fi
+          
           echo "CONFIG_TMPFS_XATTR=y" >> arch/arm64/configs/gki_defconfig
-          make O=out gki_defconfig vendor/kalama_GKI.config vendor/oplus/kalama_GKI.config vendor/debugfs.config
+          make O=out gki_defconfig vendor/audi_GKI.config vendor/oplus/audi_GKI.config vendor/debugfs.config
           
           make -j2 O=out Image
+          
+          if [[ "${{ inputs.ksu_type }}" == *KPM ]]; then
+            cd ${SOC}/out/arch/arm64/boot/
+            wget https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.13.0/patch_linux
+            chmod +x patch_linux
+            ./patch_linux
+            rm -f Image
+            mv oImage Image
+          fi
 
       - name: Make AnyKernel3
         run: |
