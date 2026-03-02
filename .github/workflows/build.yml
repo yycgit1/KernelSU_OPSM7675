@@ -7,7 +7,7 @@ on:
         description: 选择您内核对应的clang
         required: true
         type: choice
-        default: clang-r547379
+        default: clang-r563880c
         options:
           - clang-3289846
           - clang-r547379
@@ -93,7 +93,7 @@ jobs:
           mkdir -p toolchains/${{ inputs.clang_version }}
           cd toolchains
 
-          curl -LO https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/${{ inputs.clang_version }}.tar.gz
+          curl -LO https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android16-qpr2-release/${{ inputs.clang_version }}.tar.gz
           tar -xf "${{ inputs.clang_version }}.tar.gz" -C ${{ inputs.clang_version }}
 
       - name: Compile Kernel
