@@ -153,16 +153,35 @@ jobs:
             cp ./kernel_patches/include/linux/* ../include/linux/
             cd ..
             patch -p1 < 50_add_susfs_in_gki-android14-6.1.patch
+            # 启用 SUSFS 核心支持
             echo "CONFIG_KSU_SUSFS=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用隐藏可疑路径功能 (SUS_PATH)
             echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用隐藏可疑挂载功能 (SUS_MOUNT)
             echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用伪造可疑文件/目录状态功能 (SUS_KSTAT)
             echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用伪造 uname 系统调用返回字符串功能 (SPOOF_UNAME)
             echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> arch/arm64/configs/gki_defconfig
-            echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用隐藏 kallsyms 中的 KSU 和 SUSFS 符号功能
             echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用伪造 /proc/bootconfig 或 /proc/cmdline 功能
             echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用路径重定向功能 (OPEN_REDIRECT)
             echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用隐藏内存映射文件功能 (SUS_MAP)
             echo "CONFIG_KSU_SUSFS_SUS_MAP=y" >> arch/arm64/configs/gki_defconfig
+
+            # 启用 SUSFS 日志记录到内核（可选，建议开启以便调试）
+            echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> arch/arm64/configs/gki_defconfig
           fi
 
           if [[ "${{ inputs.ksu_type }}" == *BBG* ]]; then
