@@ -45,6 +45,7 @@ on:
           - KowSU
           - ReSukiSU
           - ReSukiSU-with-susfs
+          - ReSukiSU-with-susfs-BBG
           - ReSukiSU-with-susfs-BBG-KPM
           
 jobs:
@@ -138,7 +139,7 @@ jobs:
               curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/refs/heads/dev-susfs/kernel/setup.sh" | bash -s dev-susfs
               ;;
 
-            "ReSukiSU"|"ReSukiSU-with-susfs"|"ReSukiSU-with-susfs-BBG-KPM")
+            "ReSukiSU"|"ReSukiSU-with-susfs"|"ReSukiSU-with-susfs-BBG-KPM"|"ReSukiSU-with-susfs-BBG")
               curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash -s main
               ;;
           esac
