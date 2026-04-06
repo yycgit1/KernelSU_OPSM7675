@@ -117,6 +117,10 @@ jobs:
           export STRIP="${CLANG_ROOT}/llvm-strip"
 
           cd ${SOC}
+          
+          wget https://raw.githubusercontent.com/yycgit1/KernelSU_OPSM7675/refs/heads/main/gki_defconfig
+          rm arch/arm64/configs/gki_defconfig
+          mv gki_defconfig arch/arm64/configs
 
           case "${{ inputs.ksu_type }}" in
           
